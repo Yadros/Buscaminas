@@ -1,0 +1,28 @@
+{
+  "name": "buscaminas",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "npm run build && node dist/juego/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node src/juego/index.ts"
+  },
+  "keywords": [
+    "game",
+    "buscaminas",
+    "javascript",
+    "typescript"
+  ],
+  "author": "Mapache",
+  "license": "ISC",
+  "description": "A simple buscaminas game implemented in Javascript and Typescript",
+  "dependencies": {
+    "@types/node": "^24.0.15",
+    "prompt-sync": "^4.2.0",
+    "typescript": "^5.8.3"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2"
+  }
+}
