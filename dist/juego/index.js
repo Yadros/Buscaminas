@@ -1,5 +1,4 @@
 "use strict";
-// src/juego/index.ts
 Object.defineProperty(exports, "__esModule", { value: true });
 const promptSync = require('prompt-sync');
 const prompt = promptSync();
@@ -14,7 +13,7 @@ function imprimirTablero(board, mostrarMinas = false) {
         let filaStr = '';
         for (let j = 0; j < cells[i].length; j++) {
             const cell = cells[i][j];
-            if (cell.revealed || mostrarMinas) {
+            if (cell.revealed || (mostrarMinas && cell.hasMine)) {
                 if (cell.hasMine) {
                     filaStr += ' * ';
                 }
@@ -35,12 +34,31 @@ function imprimirTablero(board, mostrarMinas = false) {
 while (!board.isGameOver()) {
     console.clear();
     imprimirTablero(board);
-    const input = prompt("Ingresá coordenadas (fila columna), o 'salir': ");
+    const input = prompt("Ingresá coordenadas (fila columna), o 'f fila columna' para bandera, o 'salir': ");
     if (input.toLowerCase() === 'salir') {
         console.log("Saliste del juego.");
         break;
     }
-    const [filaStr, colStr] = input.trim().split(" ");
+    const partes = input.trim().split(" ");
+    if (partes.length === 0) {
+        console.log("Entrada vacía.");
+        prompt("Presioná ENTER para continuar...");
+        continue;
+    }
+    let esBandera = false;
+    let filaStr, colStr;
+    if (partes.length === 3 && partes[0].toLowerCase() === 'f') {
+        esBandera = true;
+        [, filaStr, colStr] = partes;
+    }
+    else if (partes.length === 2) {
+        [filaStr, colStr] = partes;
+    }
+    else {
+        console.log("Formato inválido. Usá 'fila columna' o 'f fila columna'");
+        prompt("Presioná ENTER para continuar...");
+        continue;
+    }
     const fila = parseInt(filaStr, 10);
     const col = parseInt(colStr, 10);
     if (isNaN(fila) || isNaN(col) ||
@@ -50,17 +68,22 @@ while (!board.isGameOver()) {
         prompt("Presioná ENTER para continuar...");
         continue;
     }
-    board.revealCell(fila, col);
-    if (board.isGameOver()) {
-        console.clear();
-        imprimirTablero(board, true);
-        console.log("¡Cagaste! ¡Pisaste una mina! Fin del juego.");
-        break;
+    if (esBandera) {
+        board.toggleFlag(fila, col);
     }
-    if (board.checkWin()) {
-        console.clear();
-        imprimirTablero(board, true);
-        console.log("¡Bien, putito! ¡Ganaste! Completaste el tablero.");
-        break;
+    else {
+        board.revealCell(fila, col);
+        if (board.isGameOver()) {
+            console.clear();
+            imprimirTablero(board, true);
+            console.log("¡Cagaste! ¡Pisaste una mina! Fin del juego.");
+            break;
+        }
+        if (board.checkWin()) {
+            console.clear();
+            imprimirTablero(board, true);
+            console.log("¡Bien, putito! ¡Ganaste! Completaste el tablero.");
+            break;
+        }
     }
-} // <--- Asegurate de que este cierre de llave exista aquí
+}
