@@ -37,7 +37,7 @@ while (!board.isGameOver()) {
     imprimirTablero(board);
     const input = prompt("Ingresá coordenadas (fila columna), o 'salir': ");
     if (input.toLowerCase() === 'salir') {
-        console.log("👋 Saliste del juego.");
+        console.log("Saliste del juego.");
         break;
     }
     const [filaStr, colStr] = input.trim().split(" ");

@@ -1,5 +1,3 @@
-// src/juego/index.ts
-
 const promptSync = require('prompt-sync');
 const prompt = promptSync();
 
@@ -18,7 +16,7 @@ function imprimirTablero(board: Board, mostrarMinas = false): void {
     let filaStr = '';
     for (let j = 0; j < cells[i].length; j++) {
       const cell = cells[i][j];
-      if (cell.revealed || mostrarMinas) {
+      if (cell.revealed || (mostrarMinas && cell.hasMine)) {
         if (cell.hasMine) {
           filaStr += ' * ';
         } else {
@@ -33,17 +31,39 @@ function imprimirTablero(board: Board, mostrarMinas = false): void {
     console.log(filaStr);
   }
 }
+
 while (!board.isGameOver()) {
   console.clear();
   imprimirTablero(board);
 
-  const input = prompt("Ingresá coordenadas (fila columna), o 'salir': ");
+  const input = prompt("Ingresá coordenadas (fila columna), o 'f fila columna' para bandera, o 'salir': ");
   if (input.toLowerCase() === 'salir') {
     console.log("Saliste del juego.");
     break;
   }
 
-  const [filaStr, colStr] = input.trim().split(" ");
+  const partes = input.trim().split(" ");
+
+  if (partes.length === 0) {
+    console.log("Entrada vacía.");
+    prompt("Presioná ENTER para continuar...");
+    continue;
+  }
+
+  let esBandera = false;
+  let filaStr: string, colStr: string;
+
+  if (partes.length === 3 && partes[0].toLowerCase() === 'f') {
+    esBandera = true;
+    [, filaStr, colStr] = partes;
+  } else if (partes.length === 2) {
+    [filaStr, colStr] = partes;
+  } else {
+    console.log("Formato inválido. Usá 'fila columna' o 'f fila columna'");
+    prompt("Presioná ENTER para continuar...");
+    continue;
+  }
+
   const fila = parseInt(filaStr, 10);
   const col = parseInt(colStr, 10);
 
@@ -57,19 +77,23 @@ while (!board.isGameOver()) {
     continue;
   }
 
-  board.revealCell(fila, col);
+  if (esBandera) {
+    board.toggleFlag(fila, col);
+  } else {
+    board.revealCell(fila, col);
 
-  if (board.isGameOver()) {
-    console.clear();
-    imprimirTablero(board, true);
-    console.log("¡Cagaste! ¡Pisaste una mina! Fin del juego.");
-    break;
-  }
+    if (board.isGameOver()) {
+      console.clear();
+      imprimirTablero(board, true);
+      console.log("¡Cagaste! ¡Pisaste una mina! Fin del juego.");
+      break;
+    }
 
-  if (board.checkWin()) {
-    console.clear();
-    imprimirTablero(board, true);
-    console.log("¡Bien, putito! ¡Ganaste! Completaste el tablero.");
-    break;
+    if (board.checkWin()) {
+      console.clear();
+      imprimirTablero(board, true);
+      console.log("¡Bien, putito! ¡Ganaste! Completaste el tablero.");
+      break;
+    }
   }
-}  // <--- Asegurate de que este cierre de llave exista aquí
+}
